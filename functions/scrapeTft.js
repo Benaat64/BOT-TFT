@@ -16,7 +16,7 @@ async function acceptCookies(page) {
   }
 }
 
-// Fonction pour faire défiler la page et charger toutes les données
+// Fonction pour faire scroll la page
 async function scrollPage(page) {
   let previousHeight;
   try {
@@ -24,7 +24,6 @@ async function scrollPage(page) {
       previousHeight = await page.evaluate(() => document.body.scrollHeight);
       await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
 
-      // Attendre plus longtemps pour charger plus de contenu
       await new Promise((resolve) => setTimeout(resolve, 5000));
 
       const currentHeight = await page.evaluate(
@@ -100,37 +99,36 @@ async function scrapeTFTactics() {
 async function drawOnImage(data) {
   const tierListImage = path.join(__dirname, "tierlist.png");
 
-  // Filtrer les compositions pour ne garder que celles avec un rang "S"
   const filteredData = data.filter((comp) => comp.rank === "S");
 
   // Calculer la hauteur totale requise pour le canvas en fonction du nombre de compositions filtrées
   const compositionsCount = filteredData.length;
-  const blockHeight = 150; // Hauteur pour chaque bloc de composition
-  const padding = 50; // Espace de padding en haut et en bas
-  const totalHeight = compositionsCount * blockHeight + padding * 2 + 50; // Ajouter un peu plus de hauteur pour s'assurer que tout est visible
+  const blockHeight = 150;
+  const padding = 50;
+  const totalHeight = compositionsCount * blockHeight + padding * 2 + 50;
 
   // Définir la largeur du canvas
-  const canvasWidth = 1000; // Ajuster la largeur selon vos besoins
+  const canvasWidth = 1000;
 
   // Créer un canvas avec une taille ajustée
   const canvas = createCanvas(canvasWidth, totalHeight);
   const ctx = canvas.getContext("2d");
 
   // Ajouter un arrière-plan sombre
-  ctx.fillStyle = "#1A1A2E"; // Utiliser une couleur bleu foncé pour l'arrière-plan
-  ctx.fillRect(0, 0, canvasWidth, totalHeight); // Remplir tout le canvas avec la couleur d'arrière-plan
+  ctx.fillStyle = "#1A1A2E";
+  ctx.fillRect(0, 0, canvasWidth, totalHeight);
 
-  ctx.font = "18px Arial"; // Réduire la taille de la police
-  ctx.fillStyle = "white"; // Utiliser du blanc pour le texte pour un bon contraste
+  ctx.font = "18px Arial";
+  ctx.fillStyle = "white";
 
-  let y = 40; // Position de départ pour le dessin
-  const circleRadius = 30; // Réduire le rayon des cercles pour les images de champions
-  const horizontalSpacing = 80; // Réduire l'espacement horizontal entre les images des champions
-  const verticalSpacing = 100; // Réduire l'espacement vertical entre les compositions
+  let y = 40;
+  const circleRadius = 30;
+  const horizontalSpacing = 80;
+  const verticalSpacing = 100;
 
   // Dessiner les données des compositions filtrées
   for (const comp of filteredData) {
-    ctx.fillStyle = "white"; // Utiliser du blanc pour le texte
+    ctx.fillStyle = "white";
 
     // Dessiner le rang
     ctx.fillText(`Rank: ${comp.rank}`, 30, y);
@@ -138,10 +136,10 @@ async function drawOnImage(data) {
     // Dessiner le nom de la composition
     ctx.fillText(`Team Name: ${comp.teamName}`, 30, y + 25);
 
-    y += 70; // Décalage pour la prochaine ligne après le rang et le nom, ajusté pour réduire l'espace
+    y += 70;
 
     // Dessiner les images des champions
-    let x = 30; // Position de départ pour les images des champions
+    let x = 30;
     for (const champ of comp.champs) {
       const imgUrl = champ.img;
 
@@ -166,22 +164,21 @@ async function drawOnImage(data) {
 
         ctx.restore(); // Restaurer le contexte pour arrêter le clipping
 
-        x += horizontalSpacing; // Espacement horizontal entre les cercles
+        x += horizontalSpacing;
       } catch (err) {
         console.error(`Erreur lors du chargement de l'image : ${imgUrl}`, err);
       }
     }
 
-    y += verticalSpacing; // Espacement vertical pour la prochaine composition, réduit pour optimiser l'espace
+    y += verticalSpacing;
   }
 
-  // Ajouter le texte "Scraped by Beñaat64" en bas à droite
-  ctx.font = "bold 16px Arial"; // Définir la police en gras
-  ctx.fillStyle = "white"; // Couleur blanche pour le texte
+  ctx.font = "bold 16px Arial";
+  ctx.fillStyle = "white";
   const text = "Scraped by Beñaat64";
   const textWidth = ctx.measureText(text).width;
-  const xPosition = canvasWidth - textWidth - 20; // Calculer la position X pour aligner le texte à droite avec un léger décalage
-  const yPosition = totalHeight - 20; // Position Y près du bas du canvas avec un léger décalage
+  const xPosition = canvasWidth - textWidth - 20;
+  const yPosition = totalHeight - 20;
   ctx.fillText(text, xPosition, yPosition);
 
   const out = fs.createWriteStream(tierListImage);
